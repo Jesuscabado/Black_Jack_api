@@ -12,7 +12,7 @@ async function createDeck() {
         console.error("Error al crear el mazo:", error);
     }
 }
-console.log(createDeck());
+console.log(`Mazo creado: ${deckId}`); // <-- Verifica en consola
 
 // ✅ Robar cartas (se usa para repartir al jugador y la banca)
 async function drawCards(count) {
@@ -26,4 +26,7 @@ async function drawCards(count) {
     }
 }
 
-export { createDeck, drawCards };
+export default{
+     createDeck,
+      drawCards 
+};
