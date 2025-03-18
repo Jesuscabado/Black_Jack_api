@@ -1,3 +1,4 @@
+// Importa las funciones de api.js
 import { createDeck, drawCards } from "./api.js";
 
 const playerHand = document.getElementById("player-hand");
@@ -8,6 +9,7 @@ const newGameButton = document.getElementById("new-game");
 
 let playerCards = [];
 let dealerCards = [];
+let deckId = ""; // Agrega el ID del mazo
 
 // ✅ Función para actualizar las cartas en la interfaz
 function updateUI() {
@@ -17,16 +19,15 @@ function updateUI() {
 
 // ✅ Iniciar una nueva partida
 async function startGame() {
-    await createDeck();
-    playerCards = await drawCards(2);
-    dealerCards = await drawCards(2);
-
-    updateUI();
+    deckId = await createDeck(); // Llamamos a la función para crear el mazo
+    playerCards = await drawCards(deckId, 2);  // Robar 2 cartas para el jugador
+    dealerCards = await drawCards(deckId, 2);  // Robar 2 cartas para la banca
+    updateUI();  // Actualiza la interfaz con las cartas
 }
 
 // ✅ Pedir una carta
 async function hit() {
-    const newCard = await drawCards(1);
+    const newCard = await drawCards(deckId, 1);  // Roba 1 carta
     playerCards.push(...newCard);
     updateUI();
 }
@@ -34,7 +35,7 @@ async function hit() {
 // ✅ Quedarse (turno de la banca)
 async function stand() {
     while (calculateScore(dealerCards) < 17) {
-        const newCard = await drawCards(1);
+        const newCard = await drawCards(deckId, 1);  // Roba cartas hasta que la banca tenga al menos 17 puntos
         dealerCards.push(...newCard);
     }
     updateUI();

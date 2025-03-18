@@ -2,17 +2,21 @@ const API_BASE = "https://deckofcardsapi.com/api/deck";
 let deckId = ""; // Se almacenará el ID del mazo
 
 // ✅ Crear un nuevo mazo y barajar
-async function createDeck() {
+ async function createDeck() {
     try {
         const response = await fetch(`${API_BASE}/new/shuffle/?deck_count=1`);
         const data = await response.json();
         deckId = data.deck_id;
-        console.log(`Mazo creado: ${deckId}`);
+
+        console.log(`Mazo creado: ${deckId}`); // <-- Verifica en consola
+
+        // Muestra el ID en pantalla (opcional)
+        document.getElementById("deck-info").textContent = `Mazo ID: ${deckId}`;
+
     } catch (error) {
         console.error("Error al crear el mazo:", error);
     }
 }
-console.log(`Mazo creado: ${deckId}`); // <-- Verifica en consola
 
 // ✅ Robar cartas (se usa para repartir al jugador y la banca)
 async function drawCards(count) {
@@ -26,7 +30,4 @@ async function drawCards(count) {
     }
 }
 
-export default{
-     createDeck,
-      drawCards 
-};
+export { createDeck, drawCards };
