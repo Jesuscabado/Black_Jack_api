@@ -8,10 +8,17 @@
 </head>
 <body>
     <h1>Blackjack</h1>
-    <p id="deck-info">Mazo no creado aún</p>  <!-- Muestra el ID aquí -->
     <div id="game">
-        <div id="player-hand"></div>
         <div id="dealer-hand"></div>
+        <div id="player-hand"></div>
+        <div id="game-modal" class="modal">
+            <div class="modal-content">
+              <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTR4eDI5amtzamU2Zm95b3Fub2dtMTI3NTBia2g5NDJwdmF6ZDY0aSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3ohzdQ1IynzclJldUQ/giphy.gif" alt="Perdiste" width="300"> <!-- Imagen de derrota -->
+              <p>Has perdido... ¿Quieres intentar Doble o Nada?</p>
+              <button id="double">Doble o Nada</button>
+              <button id="close-modal">Cerrar</button>
+            </div>
+        </div>
         <button id="hit">Pedir Carta</button>
         <button id="stand">Quedarse</button>
         <button id="new-game">Nueva Partida</button>
