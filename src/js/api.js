@@ -10,12 +10,7 @@ async function createDeck() {
         if (data.success) {
             deckId = data.deck_id;
             console.log(`✅ Mazo creado: ${deckId}`);
-
-            // Muestra el ID en pantalla (opcional)
-            const deckInfo = document.getElementById("deck-info");
-            if (deckInfo) {
-                deckInfo.textContent = `Mazo ID: ${deckId}`;
-            }
+            return deckId;
         } else {
             throw new Error('No se pudo crear el mazo');
         }

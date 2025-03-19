@@ -1,4 +1,8 @@
 import { createDeck, drawCards } from "./api.js";
+import { 
+    playerCards, dealerCards, setGameOver, resetGame, 
+    calculateScore, dealerPlay, checkWinner 
+} from './blackJack.js';
 
 const playerHand = document.getElementById("player-hand");
 const dealerHand = document.getElementById("dealer-hand");
@@ -9,93 +13,91 @@ const modal = document.getElementById("game-modal");
 const doubleBtn = document.getElementById("double");
 const closeModalBtn = document.getElementById("close-modal");
 
-let playerCards = [];
-let dealerCards = [];
-let gameOver = false;
-
 function updateUI() {
     playerHand.innerHTML = playerCards.map(card => `<img src="${card.image}" alt="${card.code}">`).join("");
-    if (!gameOver) {
+    if (!setGameOver) {
         dealerHand.innerHTML = dealerCards.map(() => `<img src="https://deckofcardsapi.com/static/img/back.png">`).join("");
     } else {
         dealerHand.innerHTML = dealerCards.map(card => `<img src="${card.image}" alt="${card.code}">`).join("");
     }
 }
 
-function calculateScore(cards) {
-    let score = 0;
-    let aces = 0;
-    cards.forEach(card => {
-        if (["KING", "QUEEN", "JACK"].includes(card.value)) score += 10;
-        else if (card.value === "ACE") {
-            aces++;
-            score += 11;
-        } else score += parseInt(card.value);
-    });
-    while (score > 21 && aces > 0) {
-        score -= 10;
-        aces--;
-    }
-    return score;
-}
-
 async function startGame() {
     await createDeck();
-    playerCards = await drawCards(2);
-    dealerCards = await drawCards(2);
-    gameOver = false;
-    modal.style.display = "none";
+    resetGame();
+    playerCards.push(...await drawCards(2));
+    dealerCards.push(...await drawCards(2));
     updateUI();
     hitButton.disabled = false;
     standButton.disabled = false;
+    modal.style.display = "none";
 }
 
 async function hit() {
-    const newCard = await drawCards(1);
-    playerCards.push(...newCard);
+    playerCards.push(...await drawCards(1));
     updateUI();
-
     if (calculateScore(playerCards) > 21) {
         endGame("lose");
     }
 }
 
 async function stand() {
-    while (calculateScore(dealerCards) < 17) {
-        const newCard = await drawCards(1);
-        dealerCards.push(...newCard);
-    }
-    checkWinner();
-}
-
-function checkWinner() {
-    const playerScore = calculateScore(playerCards);
-    const dealerScore = calculateScore(dealerCards);
-    if (dealerScore > 21 || playerScore > dealerScore) {
-        alert("¡Ganaste!");
-        endGame("win");
-    } else if (playerScore === dealerScore) {
-        alert("Empate.");
-        endGame("draw");
-    } else {
-        endGame("lose");
-    }
+    await dealerPlay();
+    const result = checkWinner();
+    endGame(result);
 }
 
 function endGame(status) {
-    gameOver = true;
-    updateUI();
     hitButton.disabled = true;
     standButton.disabled = true;
+    setGameOver(true);   // ✅ Así modificas el valor exportado
+    updateUI();
 
-    if (status === "lose") {
-        showModal(); // ✅ Lanza el modal al perder
+    // Actualizar puntaje solo si ganó el jugador
+    updateScore(status);
+
+    if (status === "win") {
+        alert("¡Ganaste!");
+    } else if (status === "draw") {
+        alert("Empate");
+    } else {
+        showModal();
     }
 }
+
+function updateScore(status) {
+    let score = parseInt(localStorage.getItem("blackjackScore")) || 0;
+
+    if (status === "win") {
+        score += 100;
+    } else if (status === "lose") {
+        score -= 50;  // Penalización por perder
+        if (score < 0) score = 0;  // Evita score negativo
+    }
+
+    localStorage.setItem("blackjackScore", score);
+    document.getElementById("score").textContent = `Puntuación: ${score}`;
+}
+
+
+function loadScore() {
+    const score = parseInt(localStorage.getItem("blackjackScore")) || 0;
+    const scoreElement = document.getElementById("score");
+    if (scoreElement) scoreElement.textContent = `Puntuación: ${score}`;
+}
+
 
 function showModal() {
     modal.style.display = "flex";
 }
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+doubleBtn.addEventListener("click", () => {
+    closeModal();
+});
 
 async function doubleOrNothing() {
     const card = await drawCards(1);
@@ -118,3 +120,4 @@ doubleBtn.addEventListener("click", doubleOrNothing);
 closeModalBtn.addEventListener("click", () => modal.style.display = "none");
 
 startGame();
+loadScore();
